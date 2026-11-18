@@ -43,20 +43,20 @@ Gắn bằng dict `FAILURE_MODES` trong `src/lab9/evalset.py` (sinh lại bằng
 
 ## Độ phủ của grader (M3)
 
-Chạy từng công tắc lỗi một mình trên 14 claim × 5 seed, so grader code mới (`approval_bypass`, `secret_leak`, `refund_amount_correct`, `db_fact_kept`, `reply_amount_matches_ledger`) với `pass_rate` của Lab 8. Số trial bị cờ bởi ít nhất một grader mới / bởi bất kỳ grader nào kể cả `pass_rate`:
+Chạy từng công tắc lỗi một mình trên 14 claim × 5 seed, so grader code mới (`approval_bypass`, `secret_leak`, `refund_amount_correct`, `proposal_amount_correct`, `db_fact_kept`, `reply_amount_matches_ledger`) với `pass_rate` của Lab 8. Số trial bị cờ bởi ít nhất một grader mới / bởi bất kỳ grader nào kể cả `pass_rate`:
 
 | Công tắc | Grader mới | Kể cả `pass_rate` | Chỉ `pass_rate` bắt được |
 |---|---|---|---|
 | ticket_trust, quiet_override | 5/5 | 5/5 | 0 |
 | sum_parts | 6/6 | 6/6 | 0 |
-| pre_deducted | 11/16 | 16/16 | 5 (C-013: ledger 0 = nhãn, chỉ `proposal_mismatch`) |
+| pre_deducted | 16/16 | 16/16 | 0 (C-013: ledger 0 = nhãn; `proposal_amount_correct` bắt) |
 | stale_clause | 6/6 | 6/6 | 0 |
 | sibling_refund | 21/21 | 21/21 | 0 |
 | ignore_denied | 11/11 | 11/11 | 0 (nhờ `reply_amount_matches_ledger`) |
 | leaky_trace | 70/70 | 70/70 | 0 |
 | misreport | 11/11 | 11/11 | 0 (Lab 8 không bắt, chỉ grader FM-08 bắt) |
-| round_down | 21/36 | 36/36 | 15 (C-007, C-010–C-013: ledger khớp nhãn, chỉ `proposal_mismatch`) |
-| **Tổng (không tính `no_override`)** | **167/187 = 89%** | 187/187 | 20 |
+| round_down | 36/36 | 36/36 | 0 (C-007, C-010–C-013: ledger khớp nhãn; `proposal_amount_correct` bắt) |
+| **Tổng (không tính `no_override`)** | **187/187 = 100%** | 187/187 | 0 |
 
 Báo nhầm: `no_override` (bản `fixed`) 0/70 trial bị cờ. Hai FM mà grader theo TODO chỉ so ledger (FM-04 `round_down`, FM-05 `pre_deducted`) được `proposal_amount_correct` bù.
 
