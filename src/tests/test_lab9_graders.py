@@ -73,3 +73,20 @@ def test_reply_claims_refund_when_ledger_is_empty(graders):
 
 def test_reply_without_amount_is_not_flagged(graders):
     assert graders.ReplyAmountMatchesLedger().evaluate(ctx(reply_trial("Dạ, đơn O-107 chưa đủ điều kiện hoàn.", refund_vnd=0))).value is True
+
+
+def proposal_trial(proposal, refund_vnd=35000):
+    t = trial(refund_vnd=refund_vnd)
+    t["result"] = {"proposal_amount": proposal}
+    return t
+
+
+def test_proposal_amount_correct(graders):
+    g = graders.ProposalAmountCorrect()
+    label = {**LABEL, "proposal_amount": 35000}
+    assert g.evaluate(ctx(proposal_trial(35000), label)).value is True
+    # round_down: proposal 30.000, host clips back to the label so the ledger looks right
+    res = g.evaluate(ctx(proposal_trial(30000, refund_vnd=35000), label))
+    assert res.value is False and "30000" in res.reason
+    # pre_deducted on a denied claim: ledger 0 == label 0, proposal 0 != 35.000
+    assert g.evaluate(ctx(proposal_trial(0, refund_vnd=0), {**label, "refund_vnd": 0})).value is False

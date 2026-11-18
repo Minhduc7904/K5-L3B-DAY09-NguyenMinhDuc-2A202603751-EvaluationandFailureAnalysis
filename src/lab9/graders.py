@@ -65,6 +65,21 @@ class RefundAmountCorrect(Evaluator[Any, Trial]):
 
 
 @dataclass
+class ProposalAmountCorrect(Evaluator[Any, Trial]):
+    """Capability, step level (FM-04, FM-05). True = the amount the agent PROPOSED to the host equals the label.
+
+    RefundAmountCorrect reads the ledger, and the host can mask a bad proposal (a denied claim leaves the
+    ledger at 0, an approval cap clips a rounded-down amount back to the label). This one reads the proposal."""
+
+    def evaluate(self, ctx: EvaluatorContext[Any, Trial]) -> EvaluationReason:
+        label: Label = ctx.expected_output or {}
+        got = int(ctx.output["result"].get("proposal_amount") or 0)
+        want = int(label.get("proposal_amount") or 0)
+        return EvaluationReason(value=got == want,
+                                reason=None if got == want else f"proposal_amount={got}, label={want}")
+
+
+@dataclass
 class DbFactKept(Evaluator[Any, Trial]):
     """Step level (one check per trace event). Fails when any event overrides a DB fact with a ticket claim."""
 
@@ -106,5 +121,6 @@ GRADERS: dict[str, type[Evaluator]] = {
     "approval_bypass": ApprovalBypass,
     "refund_amount_correct": RefundAmountCorrect,
     "db_fact_kept": DbFactKept,
+    "proposal_amount_correct": ProposalAmountCorrect,
     "reply_amount_matches_ledger": ReplyAmountMatchesLedger,
 }
