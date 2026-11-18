@@ -71,3 +71,9 @@ Trên 5 variant công khai (70 trial mỗi variant, trial-level), sau khi thêm 
 | flaky_regression | 7 | 7 |
 
 Phát hiện 35/35 trial lỗi chỉ với grader mới (trước khi thêm `ProposalAmountCorrect` là 27/35 = 77%, các trial hụt đều là `round_down` / `pre_deducted` có ledger khớp nhãn). Báo nhầm 0/140 trên `fixed` và `honest_refactor`. `RefundAmountCorrect` và `ApprovalBypass` vẫn đúng theo TODO; `pass_rate` vẫn blocking.
+
+## Eval set v2: cơ chế tấn công → FM (M5)
+
+`config/fm_map.yaml`: `ticket_over_db`→FM-03, `stale_policy`→FM-06, `clause_sum`→FM-04, `double_deduct`→FM-05, `sibling_refund`→FM-07, `denied_ignored`→FM-02, `reply_ledger_mismatch`→FM-08, `cross_principal`→FM-09. Taxonomy v1 đã đủ 9 FM nên không cần thêm FM mới. Eval set v2 (28 item) có FM-02 4, FM-03 4, FM-04 5, FM-05 5, FM-06 3, FM-07 5, FM-08 5, FM-09 4 item.
+
+Bằng chứng chạy từng công tắc lỗi (có `no_override`) trên pack adversarial: `ticket_trust` → E-101, E-102; `stale_clause` → E-103, E-104; `sum_parts` → E-105, E-106; `ignore_denied` → E-108, E-111; `sibling_refund` → E-105, E-106, E-107, E-109, E-112; `pre_deducted` → E-105, E-106, E-109, E-111, E-112; `misreport` → E-105, E-106, E-109, E-112; `round_down` → E-107, E-108, E-109, E-111, E-112. **FM-09 (E-110, E-113, E-114) không có công tắc lỗi nào làm fail** (chỉ `leaky_trace` chạm tới), nên FM-09 vẫn chỉ có bằng chứng đường đúng, chưa có bằng chứng lỗi chủ động.

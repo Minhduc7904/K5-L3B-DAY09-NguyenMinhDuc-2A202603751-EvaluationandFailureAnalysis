@@ -7,9 +7,18 @@ Reference values to self-check are in tests/test_lab9_stats.py.
 
 from __future__ import annotations
 
+import math
 from collections.abc import Sequence
 
-POS = "FAIL"   # the judge's job is to FIND failures, so FAIL is the positive class
+POS = "FAIL"
+
+
+def _check_nck(n: int, c: int, k: int) -> None:
+    """pass@k / pass^k are only defined for integers 1 <= k <= n and 0 <= c <= n."""
+    if not all(isinstance(x, int) and not isinstance(x, bool) for x in (n, c, k)):
+        raise ValueError(f"n, c, k must be integers, got {n!r}, {c!r}, {k!r}")
+    if n < 1 or k < 1 or k > n or c < 0 or c > n:
+        raise ValueError(f"need 1 <= k <= n and 0 <= c <= n, got n={n}, c={c}, k={k}")   # the judge's job is to FIND failures, so FAIL is the positive class
 
 
 def confusion(human: Sequence[str], judge: Sequence[str]) -> dict[str, int]:
@@ -90,13 +99,15 @@ def paired_bootstrap(a: Sequence[float], b: Sequence[float], *, n_resamples: int
 def pass_at_k(n: int, c: int, k: int) -> float:
     """Probability that AT LEAST ONE of k trials drawn from n (c of them passing) passes.
     Unbiased estimator (Chen et al. 2021): 1 - C(n-c, k) / C(n, k). Raise ValueError if k > n."""
-    # TODO M6
-    raise NotImplementedError
+    _check_nck(n, c, k)
+    if n - c < k:                       # fewer than k failures: every draw of k contains a pass
+        return 1.0
+    return 1.0 - math.comb(n - c, k) / math.comb(n, k)
 
 
 def pass_hat_k(n: int, c: int, k: int) -> float:
     """pass^k (tau-bench, Yao et al. 2024): probability that ALL k trials drawn from n pass.
     Unbiased estimator: C(c, k) / C(n, k). Raise ValueError if k > n.
     pass^k <= pass@1 <= pass@k; a reliable agent keeps pass^k close to pass@1."""
-    # TODO M6
-    raise NotImplementedError
+    _check_nck(n, c, k)
+    return math.comb(c, k) / math.comb(n, k)    # comb(c, k) = 0 when c < k

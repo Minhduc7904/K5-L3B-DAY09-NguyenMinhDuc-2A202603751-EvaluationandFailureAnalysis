@@ -57,7 +57,9 @@ Quy tắc: tiền và phê duyệt luôn chấm bằng code. Judge chỉ dùng c
 - [ ] 14 item: CI rộng, chỉ bắt được hồi quy lớn. Lỗi chỉ xuất hiện ở 1/3 seed không phát hiện ổn định được với 5 seed.
 - [ ] Judge replay trên CSV đã công khai, chưa có tập held-out mới; một người gắn nhãn (H-081 còn tranh cãi).
 - [ ] Baseline `swarm` có điểm yếu đã biết (C-002@55, `pass_rate` 0.9857): gate đang so với baseline chưa hoàn hảo.
-- [ ] FM-09 chưa có lỗi chủ động ở v1; slice gate, `pass^k` và `integrity_check` (M5–M7) chưa làm.
+- [ ] FM-09 chưa có công tắc lỗi nào làm fail E-110/E-113/E-114 (eval set v2 đã có 3 item, nhưng chưa có bằng chứng lỗi chủ động).
+- [x] Slice gate, `pass^k` và `integrity_check` (M5–M7) đã làm: xem `config/metric_spec_v2.yaml`, baseline v2 `E-swarm-20261118-14bd` và mục v2 trong `docs/eval_card.md`.
+- [ ] Hai đột biến `sum_parts+rare` và `quiet_override+rare` vẫn lọt gate v2 (chỉ chuyển lỗi của baseline từ seed 55 sang seed 33, mọi chỉ số tổng bằng nhau); chi tiết trong eval card.
 
 ## 7. Khi nào lên v1.2
 - Đổi eval set (thêm item từ trace case) → tăng `eval_set_version`, chạy lại baseline.
