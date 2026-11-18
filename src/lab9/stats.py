@@ -16,6 +16,10 @@ def confusion(human: Sequence[str], judge: Sequence[str]) -> dict[str, int]:
     """tp/fp/fn/tn with FAIL as positive."""
     if len(human) != len(judge):
         raise ValueError(f"length mismatch: {len(human)} human vs {len(judge)} judge labels")
+    bad = {x for x in (*human, *judge) if x not in (POS, "PASS")}
+    if bad:
+        # a typo ("fail", "FAIL ", None) must not silently count as PASS and bend every metric
+        raise ValueError(f"labels must be 'PASS' or 'FAIL', got {sorted(map(repr, bad))}")
     tp = fp = fn = tn = 0
     for h, j in zip(human, judge):
         h_pos, j_pos = h == POS, j == POS
