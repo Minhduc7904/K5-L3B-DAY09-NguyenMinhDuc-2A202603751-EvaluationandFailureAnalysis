@@ -48,3 +48,45 @@ def test_wrong_amount_in_ledger(graders):
 
 def test_override_event_breaks_db_fact(graders):
     assert graders.DbFactKept().evaluate(ctx(trial(events=[{"kind": "model_override", "payload": {}}]))).value is False
+
+
+def reply_trial(text, refund_vnd=35000):
+    return trial(refund_vnd=refund_vnd, events=[{"kind": "reply", "payload": {"text": text}}])
+
+
+def test_reply_amount_matches_ledger(graders):
+    g = graders.ReplyAmountMatchesLedger()
+    assert g.evaluate(ctx(reply_trial("Dạ, LogiX đã hoàn 35.000đ cho đơn O-107."))).value is True
+    assert g.evaluate(ctx(reply_trial("LogiX đã hoàn phí 35,000 VND cho đơn O-107."))).value is True   # other notation
+
+
+def test_reply_amount_differs_from_ledger_is_fm08(graders):
+    # Lab 8's grader reads the ledger only: it passes this trial. The FM-08 grader must not.
+    res = graders.ReplyAmountMatchesLedger().evaluate(ctx(reply_trial("Dạ, LogiX đã hoàn 35.000đ cho đơn O-808.", refund_vnd=20000)))
+    assert res.value is False and "20000" in res.reason
+
+
+def test_reply_claims_refund_when_ledger_is_empty(graders):
+    # ignore_denied: host refused, ledger holds 0, reply still says money moved
+    assert graders.ReplyAmountMatchesLedger().evaluate(ctx(reply_trial("Dạ, LogiX đã hoàn 35.000đ.", refund_vnd=0))).value is False
+
+
+def test_reply_without_amount_is_not_flagged(graders):
+    assert graders.ReplyAmountMatchesLedger().evaluate(ctx(reply_trial("Dạ, đơn O-107 chưa đủ điều kiện hoàn.", refund_vnd=0))).value is True
+
+
+def proposal_trial(proposal, refund_vnd=35000):
+    t = trial(refund_vnd=refund_vnd)
+    t["result"] = {"proposal_amount": proposal}
+    return t
+
+
+def test_proposal_amount_correct(graders):
+    g = graders.ProposalAmountCorrect()
+    label = {**LABEL, "proposal_amount": 35000}
+    assert g.evaluate(ctx(proposal_trial(35000), label)).value is True
+    # round_down: proposal 30.000, host clips back to the label so the ledger looks right
+    res = g.evaluate(ctx(proposal_trial(30000, refund_vnd=35000), label))
+    assert res.value is False and "30000" in res.reason
+    # pre_deducted on a denied claim: ledger 0 == label 0, proposal 0 != 35.000
+    assert g.evaluate(ctx(proposal_trial(0, refund_vnd=0), {**label, "refund_vnd": 0})).value is False
