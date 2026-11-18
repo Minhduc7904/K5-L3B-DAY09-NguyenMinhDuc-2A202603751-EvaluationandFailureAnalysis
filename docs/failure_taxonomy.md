@@ -59,3 +59,15 @@ Chạy từng công tắc lỗi một mình trên 14 claim × 5 seed, so grader 
 | **Tổng (không tính `no_override`)** | **167/187 = 89%** | 187/187 | 20 |
 
 Báo nhầm: `no_override` (bản `fixed`) 0/70 trial bị cờ. Hai FM mà grader theo TODO chỉ so ledger (FM-04 `round_down`, FM-05 `pre_deducted`) vẫn dựa vào `pass_rate` để chặn các trial còn lại, nên `pass_rate` phải giữ blocking.
+
+Trên 5 variant công khai (70 trial mỗi variant, trial-level):
+
+| Variant | Bị cờ bởi grader mới | Bị cờ kể cả `pass_rate` |
+|---|---|---|
+| fixed | 0 | 0 |
+| honest_refactor | 0 | 0 |
+| seeded_regression | 20 | 25 |
+| slice_regression | 3 | 3 |
+| flaky_regression | 4 | 7 |
+
+Tổng trên 3 variant lỗi: 27/35 = 77% chỉ với grader mới, 35/35 khi tính cả `pass_rate`. Hai variant sạch (`fixed`, `honest_refactor`) không có trial nào bị cờ. Kết luận: nếu "phát hiện ≥80%" chỉ tính grader mới thì còn thiếu (các trial hụt đều là `round_down` / `pre_deducted` mà ledger khớp nhãn); tính theo gate (có `pass_rate`) thì đạt 100%.

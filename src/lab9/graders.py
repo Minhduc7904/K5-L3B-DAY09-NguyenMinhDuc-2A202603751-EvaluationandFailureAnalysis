@@ -73,12 +73,13 @@ class DbFactKept(Evaluator[Any, Trial]):
         return EvaluationReason(value=not bad, reason=f"{len(bad)} override event(s)" if bad else None)
 
 
-AMOUNT_RE = re.compile(r"(\d{1,3}(?:\.\d{3})+|\d+)\s*đ")
+# '35.000đ', '35,000 VND', '35000đồng', '35.000 ₫'; a bare number without a currency mark is not an amount.
+AMOUNT_RE = re.compile(r"(\d{1,3}(?:[.,]\d{3})+|\d+)\s*(?:đồng|đ|₫|vnd)", re.IGNORECASE)
 
 
 def amounts_in(text: str) -> list[int]:
     """VND amounts written like '35.000đ' or '35000đ' in a reply."""
-    return [int(m.replace(".", "")) for m in AMOUNT_RE.findall(text or "")]
+    return [int(m.replace(".", "").replace(",", "")) for m in AMOUNT_RE.findall(text or "")]
 
 
 @dataclass
